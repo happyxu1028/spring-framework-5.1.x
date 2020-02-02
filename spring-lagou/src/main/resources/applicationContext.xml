@@ -22,8 +22,8 @@
 	<bean id="myBeanPostProcessor" class="com.lagou.edu.MyBeanPostProcessor"/>-->
 
 
-	<bean id="lagouBean" class="com.lagou.edu.LagouBean">
-	</bean>
+	<bean id="lagouBean" class="com.lagou.edu.LagouBean"></bean>
+	<bean id="myMethodInterceptor" class="com.lagou.edu.MyMethodInterceptor"></bean>
 
 
 	<!--aop配置-->
@@ -32,9 +32,16 @@
 	</bean>
 
 	<aop:config>
+
+		<aop:pointcut id="pointcut" expression="execution(public void com.lagou.edu.LagouBean.print())"/>
+
+		<aop:advisor pointcut-ref="pointcut" advice-ref="myMethodInterceptor" />
+
 		<aop:aspect ref="logUtils">
-			<aop:before method="beforeMethod" pointcut="execution(public void com.lagou.edu.LagouBean.print())"/>
+			<aop:before method="beforeMethod" pointcut-ref="pointcut"/>
 		</aop:aspect>
+
+
 	</aop:config>
 
 

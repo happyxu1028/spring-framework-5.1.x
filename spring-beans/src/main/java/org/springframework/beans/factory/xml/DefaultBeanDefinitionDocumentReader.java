@@ -168,7 +168,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 						parseDefaultElement(ele, delegate);
 					}
 					else {
-						// 解析自定义标签元素
+						// 解析自定义标签元素   比如aop标签
 						delegate.parseCustomElement(ele);
 					}
 				}

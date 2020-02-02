@@ -108,12 +108,15 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 		List<Element> childElts = DomUtils.getChildElements(element);
 		for (Element elt: childElts) {
 			String localName = parserContext.getDelegate().getLocalName(elt);
+			// 创建切点bean
 			if (POINTCUT.equals(localName)) {
 				parsePointcut(elt, parserContext);
 			}
+			// 创建增强bean
 			else if (ADVISOR.equals(localName)) {
 				parseAdvisor(elt, parserContext);
 			}
+			// 创建切面bean
 			else if (ASPECT.equals(localName)) {
 				parseAspect(elt, parserContext);
 			}
