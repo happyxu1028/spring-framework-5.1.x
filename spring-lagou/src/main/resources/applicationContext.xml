@@ -35,7 +35,8 @@
 
 		<aop:pointcut id="pointcut" expression="execution(public void com.lagou.edu.LagouBean.print())"/>
 
-		<aop:advisor pointcut-ref="pointcut" advice-ref="myMethodInterceptor" />
+		<!--Spring针对此aop:adviso 标签,会生成一个Advisor类型的Bean到IoC容器中-->
+		<aop:advisor pointcut-ref="pointcut" advice-ref="myMethodInterceptor"/>
 
 		<aop:aspect ref="logUtils">
 			<aop:before method="beforeMethod" pointcut-ref="pointcut"/>

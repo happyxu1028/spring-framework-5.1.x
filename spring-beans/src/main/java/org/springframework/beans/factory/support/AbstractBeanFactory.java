@@ -243,7 +243,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		final String beanName = transformedBeanName(name);
 		Object bean;
 
-		// 单纯理解尝试从缓存中获取 bean
+		/**
+		 * 单纯理解尝试从缓存中获取 bean
+		 */
 		Object sharedInstance = getSingleton(beanName);
 		// 如果已经存在则返回
 		if (sharedInstance != null && args == null) {
@@ -322,7 +324,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
-							// 创建 bean
+							/**
+							 * 创建 bean
+							 */
 							return createBean(beanName, mbd, args);
 						}
 						catch (BeansException ex) {
