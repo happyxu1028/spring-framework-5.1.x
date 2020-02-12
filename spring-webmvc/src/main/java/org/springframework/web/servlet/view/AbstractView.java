@@ -314,6 +314,8 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 
 		Map<String, Object> mergedModel = createMergedOutputModel(model, request, response);
 		prepareResponse(request, response);
+
+		// 进入方法:org.springframework.web.servlet.view.InternalResourceView.renderMergedOutputModel
 		renderMergedOutputModel(mergedModel, getRequestToExpose(request), response);
 	}
 
