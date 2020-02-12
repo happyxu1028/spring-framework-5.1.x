@@ -878,22 +878,28 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
 
+
 			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
+			// 将request请求的相关参数信息封装到ModelAndViewContainer
 			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
+
+
 			// 这里initModel()方法主要作用是调用前面获取到的@ModelAttribute标注的方法，
 			// 从而达到@ModelAttribute标注的方法能够在目标Handler调用之前调用的目的
 			modelFactory.initModel(webRequest, mavContainer, invocableMethod);
 			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
 
+			// 异步相关 暂时忽略
 			AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);
 			asyncWebRequest.setTimeout(this.asyncRequestTimeout);
 
+			// 异步相关 暂时忽略
 			WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 			asyncManager.setTaskExecutor(this.taskExecutor);
 			asyncManager.setAsyncWebRequest(asyncWebRequest);
 			asyncManager.registerCallableInterceptors(this.callableInterceptors);
 			asyncManager.registerDeferredResultInterceptors(this.deferredResultInterceptors);
-
+			//异步相关 暂时忽略
 			if (asyncManager.hasConcurrentResult()) {
 				Object result = asyncManager.getConcurrentResult();
 				mavContainer = (ModelAndViewContainer) asyncManager.getConcurrentResultContext()[0];

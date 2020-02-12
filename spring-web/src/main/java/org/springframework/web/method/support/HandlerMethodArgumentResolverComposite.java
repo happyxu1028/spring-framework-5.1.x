@@ -136,6 +136,10 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 		HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
 		if (result == null) {
 			for (HandlerMethodArgumentResolver resolver : this.argumentResolvers) {
+				/**
+				 * 看当前遍历的匹配器是否支持请求的参数, 若参数为Map,则MapMethodProcessor来处理
+				 * 简单的参数为:RequestParamMethodArgumentResolver来处理
+				 */
 				if (resolver.supportsParameter(parameter)) {
 					result = resolver;
 					this.argumentResolverCache.put(parameter, result);

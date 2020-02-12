@@ -157,6 +157,10 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 					view = this.viewCreationCache.get(cacheKey);
 					if (view == null) {
 						// Ask the subclass to create the View object.
+
+						/**
+						 * 进入org.springframework.web.servlet.view.UrlBasedViewResolver#createView(java.lang.String, java.util.Locale)
+						 */
 						view = createView(viewName, locale);
 						if (view == null && this.cacheUnresolved) {
 							view = UNRESOLVED_VIEW;
@@ -248,6 +252,7 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 	 */
 	@Nullable
 	protected View createView(String viewName, Locale locale) throws Exception {
+		// 进入org.springframework.web.servlet.view.UrlBasedViewResolver.loadView
 		return loadView(viewName, locale);
 	}
 

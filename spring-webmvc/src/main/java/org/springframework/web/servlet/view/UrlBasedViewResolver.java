@@ -549,6 +549,9 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 		Class<?> viewClass = getViewClass();
 		Assert.state(viewClass != null, "No view class");
 
+		/**
+		 * 视图名称的拼接
+		 */
 		AbstractUrlBasedView view = (AbstractUrlBasedView) BeanUtils.instantiateClass(viewClass);
 		view.setUrl(getPrefix() + viewName + getSuffix());
 
