@@ -1144,6 +1144,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		for (BeanPostProcessor bp : getBeanPostProcessors()) {
 			if (bp instanceof InstantiationAwareBeanPostProcessor) {
 				InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
+				/**
+				 * 根据类的继承关系我们知道AnnotationAwareAspectJAutoProxyCreator继承自InstantiationAwareBeanPostProcessor，
+				 * 我们知道在每一个Bean创建之前，调用postProcessBeaforeInstantiation
+				 * 注意:AnnotationAwareAspectJAutoProxyCreator来实现注解切面的创建
+				 */
+
 				Object result = ibp.postProcessBeforeInstantiation(beanClass, beanName);
 				if (result != null) {
 					return result;

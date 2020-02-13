@@ -532,9 +532,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			 */
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-			/*
-				Prepare the bean factory for use in this context.
-				BeanFactory的预准备工作（BeanFactory进行一些设置，比如context的类加载器等）
+			/**
+			 * Prepare the bean factory for use in this context.
+			 * BeanFactory的预准备工作（BeanFactory进行一些设置，比如context的类加载器等）
+			 * 比如:添加BeanPostProcessor
+			 *
 			 */
 			prepareBeanFactory(beanFactory);
 
@@ -545,37 +547,37 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				 */
 				postProcessBeanFactory(beanFactory);
 
-				/*
+				/***
 					Invoke factory processors registered as beans in the context.
 					实例化实现了BeanFactoryPostProcessor接口的Bean，并调用接口方法
 				 */
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				/*
+				/***
 					Register bean processors that intercept bean creation.
 					注册BeanPostProcessor（Bean的后置处理器），在创建bean的前后等执行
 				 */
 				registerBeanPostProcessors(beanFactory);
 
-				/*
+				/***
 					Initialize message source for this context.
 					初始化MessageSource组件（做国际化功能；消息绑定，消息解析）；
 				 */
 				initMessageSource();
 
-				/*
+				/***
 					Initialize event multicaster for this context.
 					初始化事件派发器
 				 */
 				initApplicationEventMulticaster();
 
-				/*
+				/***
 					Initialize other special beans in specific context subclasses.
 					子类重写这个方法，在容器刷新的时候可以自定义逻辑；如创建Tomcat，Jetty等WEB服务器
 				 */
 				onRefresh();
 
-				/*
+				/***
 					Check for listener beans and register them.
 					注册应用的监听器。就是注册实现了ApplicationListener接口的监听器bean
 				 */
