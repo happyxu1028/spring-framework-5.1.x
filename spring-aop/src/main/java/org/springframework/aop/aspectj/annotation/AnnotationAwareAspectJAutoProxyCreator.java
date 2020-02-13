@@ -47,6 +47,9 @@ import org.springframework.util.Assert;
  * @see org.springframework.aop.aspectj.annotation.AspectJAdvisorFactory
  */
 @SuppressWarnings("serial")
+/**
+ * 来识别@Aspect的切面类
+ */
 public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorAutoProxyCreator {
 
 	@Nullable
@@ -79,8 +82,15 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 	protected void initBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 		super.initBeanFactory(beanFactory);
 		if (this.aspectJAdvisorFactory == null) {
+			/**
+			 * 初始化了一个aop切面工厂类
+			 * ReflectiveAspectJAdvisorFactory主要用来解析@Aspect注解切面类，获取所有的切面（标注@Before、@After等等的增强方法），进而通过反射调用相应的增强方法；
+			 */
 			this.aspectJAdvisorFactory = new ReflectiveAspectJAdvisorFactory(beanFactory);
 		}
+		/**
+		 * BeanFactoryAspectJAdvisorsBuilderAdapter类封装了ReflectiveAspectJAdvisorFactory类和BeanFactory，共同完成Aop切面的build
+		 */
 		this.aspectJAdvisorsBuilder =
 				new BeanFactoryAspectJAdvisorsBuilderAdapter(beanFactory, this.aspectJAdvisorFactory);
 	}

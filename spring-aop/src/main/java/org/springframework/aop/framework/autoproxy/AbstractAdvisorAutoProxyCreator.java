@@ -92,10 +92,10 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 */
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
 
-		// 1. 查询可以作为候选的增强
+		// 1. 查询可以作为候选的切面
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
 
-		// 2. 对候选增强进一步筛选,开当前的bean是否满足增强中的切点条件
+		// 2. 对候选切面进一步筛选,看当前的bean是否满足切面中的切点条件
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
 		extendAdvisors(eligibleAdvisors);
 		if (!eligibleAdvisors.isEmpty()) {

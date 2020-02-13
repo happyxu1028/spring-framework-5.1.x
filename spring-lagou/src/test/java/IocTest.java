@@ -1,6 +1,7 @@
 import com.lagou.edu.LagouBean;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
@@ -40,4 +41,7 @@ public class IocTest {
 		LagouBean lagouBean = applicationContext.getBean(LagouBean.class);
 		lagouBean.print();
 	}
+
+
+
 }

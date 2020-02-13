@@ -245,9 +245,17 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		Object cacheKey = getCacheKey(beanClass, beanName);
 
 		if (!StringUtils.hasLength(beanName) || !this.targetSourcedBeans.contains(beanName)) {
+			// 判断当前Bean是否在advisedBeans中，（保存了所有需要增强的Bean）
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}
+			/**
+			 * 判断当前Bean是否是基础类型，Advice、Pointcut、Advisor、AopInfrastructureBean或者是不是切面（@Aspect）
+			 * 是否需要跳过
+			 */
+			/**
+			 * @see org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator.isInfrastructureClass
+			 */
 			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
 				this.advisedBeans.put(cacheKey, Boolean.FALSE);
 				return null;
@@ -346,16 +354,19 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		// Create proxy if we have advice.
 		/**
 		 * 查找出和当前bean匹配的advisor
+		 * // 获取当前bean的所有增强器（如果采用的是BeanNameAutoProxyCreator类处理，此时不会获取Advisor，
+		 * 		会在createProxy方法中获取，
 		 */
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
-			this.advisedBeans.put(cacheKey, Boolean.TRUE);
-
 			/**
-			 * 创建代理对象
+			 * 保存当前bean在advisedBeans中
+			 */
+			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			/**
+			 * 如果当前Bean需要增强器，创建当前Bean代理对象
 			 */
 			Object proxy = createProxy(bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
-
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
 		}
@@ -459,10 +470,12 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		// 判断是否要设置proxyTargetClass为true
 		if (!proxyFactory.isProxyTargetClass()) {
+			//// 再次确认是否要代理类对象
 			if (shouldProxyTargetClass(beanClass, beanName)) {
 				proxyFactory.setProxyTargetClass(true);
 			}
 			else {
+				// 不需要则获取其代理接口集合
 				evaluateProxyInterfaces(beanClass, proxyFactory);
 			}
 		}
@@ -472,10 +485,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		 */
 		// 把增强和通用拦截器对象合并，都适配成Advisor
 		Advisor[] advisors = buildAdvisors(beanName, specificInterceptors);
-		proxyFactory.addAdvisors(advisors);
-		// 设置参数
-		proxyFactory.setTargetSource(targetSource);
-		customizeProxyFactory(proxyFactory);
+		proxyFactory.addAdvisors(advisors);// 增强器（通知方法）
+		proxyFactory.setTargetSource(targetSource);// 目标类
+		customizeProxyFactory(proxyFactory);// 是否冻结，及继续往里面加Advisor（通知方法）
 
 		proxyFactory.setFrozen(this.freezeProxy);
 		if (advisorsPreFiltered()) {

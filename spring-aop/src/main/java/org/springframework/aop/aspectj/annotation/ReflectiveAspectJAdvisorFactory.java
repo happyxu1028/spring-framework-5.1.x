@@ -112,12 +112,18 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 	@Override
 	public List<Advisor> getAdvisors(MetadataAwareAspectInstanceFactory aspectInstanceFactory) {
+
+		//AspectMetadata是Aspect切面元数据类，主要包含了aspectName、aspectClass（即标注@Aspect注解的类）等信息
 		Class<?> aspectClass = aspectInstanceFactory.getAspectMetadata().getAspectClass();
 		String aspectName = aspectInstanceFactory.getAspectMetadata().getAspectName();
 		validate(aspectClass);
 
 		// We need to wrap the MetadataAwareAspectInstanceFactory with a decorator
 		// so that it will only instantiate once.
+
+		/**
+		 * LazySingletonAspectInstanceFactoryDecorator采用装饰器模式，使得aspectInstance只会实例化一次，里面采用双重检查加锁实现单例模式
+		 */
 		MetadataAwareAspectInstanceFactory lazySingletonAspectInstanceFactory =
 				new LazySingletonAspectInstanceFactoryDecorator(aspectInstanceFactory);
 
