@@ -257,18 +257,19 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 		AbstractAspectJAdvice springAdvice;
 
+		/**
+		 * 创建增强切面:AspectJAroundAdvice
+		 * candidateAdviceMethod: 增强方法
+		 * expressionPointcut:	切点
+		 */
 		switch (aspectJAnnotation.getAnnotationType()) {
 			case AtPointcut:
 				if (logger.isDebugEnabled()) {
 					logger.debug("Processing pointcut '" + candidateAdviceMethod.getName() + "'");
 				}
+				// 如果是切点,则为null
 				return null;
 			case AtAround:
-				/**
-				 * 创建增强切面:AspectJAroundAdvice
-				 * candidateAdviceMethod: 增强方法
-				 * expressionPointcut:	切点
-				 */
 				springAdvice = new AspectJAroundAdvice(
 						candidateAdviceMethod, expressionPointcut, aspectInstanceFactory);
 				break;

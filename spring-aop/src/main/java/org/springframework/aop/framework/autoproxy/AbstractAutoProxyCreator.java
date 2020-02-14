@@ -245,15 +245,15 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		Object cacheKey = getCacheKey(beanClass, beanName);
 
 		if (!StringUtils.hasLength(beanName) || !this.targetSourcedBeans.contains(beanName)) {
-			// 判断当前Bean是否在advisedBeans中，（保存了所有需要增强的Bean）
+			/**
+			 * 判断当前Bean是否在advisedBeans中，（保存了所有需要增强的Bean）
+			 */
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}
 			/**
 			 * 判断当前Bean是否是基础类型，Advice、Pointcut、Advisor、AopInfrastructureBean或者是不是切面（@Aspect）
 			 * 是否需要跳过
-			 */
-			/**
 			 * @see org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator.isInfrastructureClass
 			 */
 			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
