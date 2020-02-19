@@ -339,6 +339,10 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 */
 	@Override
 	public final TransactionStatus getTransaction(@Nullable TransactionDefinition definition) throws TransactionException {
+		/**
+		 *transaction类型：DataSourceTransactionManager.DataSourceTransactionObject
+		  注意 DataSourceTransactionObject的数据结构，DataSourceTransactionObject包含一个ConnectionHolder
+		 */
 		Object transaction = doGetTransaction();
 
 		// Cache debug flag to avoid repeated checks.
@@ -346,11 +350,17 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 		if (definition == null) {
 			// Use defaults if no transaction definition given.
+			/**
+			 *  如果传入的事务定义实例为null的话则创建一个默认的事务定义实例
+			 */
 			definition = new DefaultTransactionDefinition();
 		}
 
 		if (isExistingTransaction(transaction)) {
 			// Existing transaction found -> check propagation behavior to find out how to behave.
+			/**
+			 * 事务传播行为有关的的处理
+			 */
 			return handleExistingTransaction(definition, transaction, debugEnabled);
 		}
 
@@ -375,6 +385,9 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
 				DefaultTransactionStatus status = newTransactionStatus(
 						definition, transaction, true, newSynchronization, debugEnabled, suspendedResources);
+				/**
+				 * 重重之重的代码，完成创建数据库连接绑定以及设置自动提交为False以及
+				 */
 				doBegin(transaction, definition);
 				prepareSynchronization(status, definition);
 				return status;

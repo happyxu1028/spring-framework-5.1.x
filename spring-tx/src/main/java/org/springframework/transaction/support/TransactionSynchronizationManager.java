@@ -64,6 +64,17 @@ import org.springframework.util.Assert;
  * within a JTA transaction, e.g. a JDBC Connection or a Hibernate Session for
  * any given DataSource or SessionFactory, respectively.
  *
+ *
+ *
+ * TransactionSynchronizationManager
+ *
+ * 该类是一个重要的工具类，用于Spring事务中的资源绑定，每一个线程绑定一个属于自己的Connection，这样保证事务有序不乱。底层使用ThreadLocal实现！！！！
+ *
+ * 当某一线程需要获取连接时候会调用doGetResource方法获取连接：
+ * org.springframework.transaction.support.TransactionSynchronizationManager#doGetResource；
+ * 当doGetResource方法获取不到连接时候调用bindResource方法绑定连接：
+ * org.springframework.transaction.support.TransactionSynchronizationManager#bindResource
+ *
  * @author Juergen Hoeller
  * @since 02.06.2003
  * @see #isSynchronizationActive

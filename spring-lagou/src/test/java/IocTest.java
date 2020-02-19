@@ -1,4 +1,5 @@
 import com.lagou.edu.LagouBean;
+import com.lagou.edu.pojo.User;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -42,6 +43,16 @@ public class IocTest {
 		lagouBean.print();
 	}
 
+
+	/**
+	 *  Ioc 容器源码分析基础案例
+	 */
+	@Test
+	public void testFactory() {
+		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+		User user = applicationContext.getBean(User.class);
+		user.getClass().getName();
+	}
 
 
 }

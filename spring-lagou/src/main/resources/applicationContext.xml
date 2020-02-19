@@ -26,24 +26,26 @@
 	<bean id="myMethodInterceptor" class="com.lagou.edu.MyMethodInterceptor"></bean>
 
 
-	<!--aop配置-->
-	<!--横切逻辑-->
-	<bean id="logUtils" class="com.lagou.edu.LogUtils">
-	</bean>
+<!--	&lt;!&ndash;aop配置&ndash;&gt;-->
+<!--	&lt;!&ndash;横切逻辑&ndash;&gt;-->
+<!--	<bean id="logUtils" class="com.lagou.edu.LogUtils">-->
+<!--	</bean>-->
 
-	<aop:config>
+<!--	<aop:config>-->
 
-		<aop:pointcut id="pointcut" expression="execution(public void com.lagou.edu.LagouBean.print())"/>
+<!--		<aop:pointcut id="pointcut" expression="execution(public void com.lagou.edu.LagouBean.print())"/>-->
 
-		<!--Spring针对此aop:adviso 标签,会生成一个Advisor类型的Bean到IoC容器中-->
-		<aop:advisor pointcut-ref="pointcut" advice-ref="myMethodInterceptor"/>
+<!--		&lt;!&ndash;Spring针对此aop:adviso 标签,会生成一个Advisor类型的Bean到IoC容器中&ndash;&gt;-->
+<!--		<aop:advisor pointcut-ref="pointcut" advice-ref="myMethodInterceptor"/>-->
 
-		<aop:aspect ref="logUtils">
-			<aop:before method="beforeMethod" pointcut-ref="pointcut"/>
-		</aop:aspect>
+<!--		<aop:aspect ref="logUtils">-->
+<!--			<aop:before method="beforeMethod" pointcut-ref="pointcut"/>-->
+<!--		</aop:aspect>-->
 
 
-	</aop:config>
+<!--	</aop:config>-->
+
+	<bean id="userBean" class="com.lagou.edu.UserFactoryBean"></bean>
 
 
 </beans>

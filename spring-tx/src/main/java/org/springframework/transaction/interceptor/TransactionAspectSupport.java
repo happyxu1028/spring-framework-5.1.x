@@ -476,6 +476,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		TransactionStatus status = null;
 		if (txAttr != null) {
 			if (tm != null) {
+				/**
+				 * 准备事务执行所需要的资源,这些资源都放在了ThreadLocal中
+				 */
 				status = tm.getTransaction(txAttr);
 			}
 			else {

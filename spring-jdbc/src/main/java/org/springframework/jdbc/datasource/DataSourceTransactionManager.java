@@ -235,6 +235,10 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
 	@Override
 	protected Object doGetTransaction() {
+		/**
+		 * 重点代码，使用TransactionSynchronizationManager获取上下文是否有Connection
+		 *     TransactionSynchronizationManager获取连接是借助ThreadLocal实现的
+		 */
 		DataSourceTransactionObject txObject = new DataSourceTransactionObject();
 		txObject.setSavepointAllowed(isNestedTransactionAllowed());
 		ConnectionHolder conHolder =
@@ -251,9 +255,16 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
 	/**
 	 * This implementation sets the isolation level but ignores the timeout.
+	 * 到此为止就完成了当前线程的Connection绑定，绑定资源时候调用TransactionSynchronizationManager#bindResource方法，
+	 * 传入两个参数：分别是DataSource与ConnechtionHolder，这是为了避免一个线程处理多个连接池的Connection时候出错而设置，
+	 * 这样获取连接时候会根据线程与连接池共同为key获取对应的唯一Connection。
+	 * 在Connection绑定时候TransactionSynchronizationManager是一个重要的工具。
 	 */
 	@Override
 	protected void doBegin(Object transaction, TransactionDefinition definition) {
+		/**
+		 *  DataSourceTransactionObject持有数据库连接ConnectionHolder成员
+		 */
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
 		Connection con = null;
 
@@ -268,6 +279,10 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			}
 
 			txObject.getConnectionHolder().setSynchronizedWithTransaction(true);
+			/**
+			 *  上下文没有获取到Connection，因此需要在数据库连接池中获取一个Connection 并设置到事务对象中
+			 *  但是由于该连接并没有和线程绑定因此需要跟线程绑定，下文TransactionSynchronizationManager.bindResource方法绑定到线程
+			 */
 			con = txObject.getConnectionHolder().getConnection();
 
 			Integer previousIsolationLevel = DataSourceUtils.prepareConnectionForTransaction(con, definition);
@@ -294,6 +309,9 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
 			// Bind the connection holder to the thread.
 			if (txObject.isNewConnectionHolder()) {
+				/**
+				 * 将连接和当前线程绑定
+				 */
 				TransactionSynchronizationManager.bindResource(obtainDataSource(), txObject.getConnectionHolder());
 			}
 		}
