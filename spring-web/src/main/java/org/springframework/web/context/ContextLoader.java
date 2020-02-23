@@ -276,6 +276,10 @@ public class ContextLoader {
 			// Store context in local instance variable, to guarantee that
 			// it is available on ServletContext shutdown.
 			if (this.context == null) {
+				/**
+				 * 项目刚启动的时候,context肯定是null,走到这里创建spring容器:XmlWebApplicationContext
+				 * 这里只是创建这个容器对象,没有对容器对象做什么实质性的操作
+				 */
 				this.context = createWebApplicationContext(servletContext);
 			}
 			if (this.context instanceof ConfigurableWebApplicationContext) {
@@ -289,9 +293,17 @@ public class ContextLoader {
 						ApplicationContext parent = loadParentContext(servletContext);
 						cwac.setParent(parent);
 					}
+					/**
+					 * 这里会创建出来的spring容器进行构建
+					 */
 					configureAndRefreshWebApplicationContext(cwac, servletContext);
 				}
 			}
+
+			/**
+			 * 将创建出来的Spring容器放入全局共享的servletContext,方面后期取出来
+			 * 标识为:WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
+			 */
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
 
 			ClassLoader ccl = Thread.currentThread().getContextClassLoader();
@@ -398,6 +410,9 @@ public class ContextLoader {
 		}
 
 		customizeContext(sc, wac);
+		/**
+		 * 这里就构建容器了!!!
+		 */
 		wac.refresh();
 	}
 

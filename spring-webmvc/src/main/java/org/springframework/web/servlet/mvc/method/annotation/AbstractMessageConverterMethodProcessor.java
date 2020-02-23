@@ -183,8 +183,13 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 			ServletServerHttpRequest inputMessage, ServletServerHttpResponse outputMessage)
 			throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
 
+		//  原始返回的响应
 		Object body;
+
+		// 原始返回的响应类型
 		Class<?> valueType;
+
+		// 需要装换的目标响应类型
 		Type targetType;
 
 		if (value instanceof CharSequence) {
@@ -217,6 +222,9 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 			}
 		}
 
+		/**
+		 * 声明最终需要的MediaType
+		 */
 		MediaType selectedMediaType = null;
 		MediaType contentType = outputMessage.getHeaders().getContentType();
 		if (contentType != null && contentType.isConcrete()) {
@@ -227,13 +235,24 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		}
 		else {
 			HttpServletRequest request = inputMessage.getServletRequest();
+			/**
+			 * 请求可接收的MediaType
+			 */
 			List<MediaType> acceptableTypes = getAcceptableMediaTypes(request);
+
+			/**
+			 * 当前程序支持的MediaType
+			 */
 			List<MediaType> producibleTypes = getProducibleMediaTypes(request, valueType, targetType);
 
 			if (body != null && producibleTypes.isEmpty()) {
 				throw new HttpMessageNotWritableException(
 						"No converter found for return value of type: " + valueType);
 			}
+
+			/**
+			 * 结合客户端期待返回的MediaType  和 程序支持返回的MediaType, 做一个匹配,结果写入mediaTypesToUse
+			 */
 			List<MediaType> mediaTypesToUse = new ArrayList<>();
 			for (MediaType requestedType : acceptableTypes) {
 				for (MediaType producibleType : producibleTypes) {
@@ -252,8 +271,11 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 				return;
 			}
 
-			MediaType.sortBySpecificityAndQuality(mediaTypesToUse);
 
+			/**
+			 * 按照一定的进行排序,按照排序的结果,选择一个具体的MediaType作为写出的MediaType
+			 */
+			MediaType.sortBySpecificityAndQuality(mediaTypesToUse);
 			for (MediaType mediaType : mediaTypesToUse) {
 				if (mediaType.isConcrete()) {
 					selectedMediaType = mediaType;
@@ -273,6 +295,9 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 
 		if (selectedMediaType != null) {
 			selectedMediaType = selectedMediaType.removeQualityValue();
+			/**
+			 * 遍历所有的HttpMessageConverter,选择支持的目标MediaType的消息转化器,进行响应的具体的写出处理逻辑
+			 */
 			for (HttpMessageConverter<?> converter : this.messageConverters) {
 				GenericHttpMessageConverter genericConverter = (converter instanceof GenericHttpMessageConverter ?
 						(GenericHttpMessageConverter<?>) converter : null);
@@ -288,9 +313,11 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 								"Writing [" + LogFormatUtils.formatValue(theBody, !traceOn) + "]");
 						addContentDispositionHeader(inputMessage, outputMessage);
 						if (genericConverter != null) {
+							// 进行响应的具体的写出处理逻辑
 							genericConverter.write(body, targetType, selectedMediaType, outputMessage);
 						}
 						else {
+							//进行响应的具体的写出处理逻辑
 							((HttpMessageConverter) converter).write(body, selectedMediaType, outputMessage);
 						}
 					}

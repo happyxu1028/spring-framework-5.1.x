@@ -144,20 +144,36 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * invoke subclass initialization.
 	 * @throws ServletException if bean properties are invalid (or required
 	 * properties are missing), or if subclass initialization fails.
+	 *
+	 * /DispatcherServlet第一次加载时调用init方法
+	 *
 	 */
 	@Override
 	public final void init() throws ServletException {
 
 		// Set bean properties from init parameters.
+		/**
+		 * 定位资源
+		 * 加载web.xml文件中的servlet标签中的init-param，其中含有springMVC的配置文件的名字和路径
+		 *  *若没有，则默认为（servlet-name）-servlet.xml，
+		 *  *默认路径为WEF—INF下
+		 */
 		PropertyValues pvs = new ServletConfigPropertyValues(getServletConfig(), this.requiredProperties);
 		if (!pvs.isEmpty()) {
 			try {
-				// 定位资源
+				/**
+				 * 定位资源
+				 * 创建BeanWrapper实例，为DispatcherServlet设置属性
+ 				 */
+
 				BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(this);
 				// 加载配置信息
 				ResourceLoader resourceLoader = new ServletContextResourceLoader(getServletContext());
 				bw.registerCustomEditor(Resource.class, new ResourceEditor(resourceLoader, getEnvironment()));
 				initBeanWrapper(bw);
+				/**
+				 *  把init-param中的参数设置到DispatcherServlet里面去
+				 */
 				bw.setPropertyValues(pvs, true);
 			}
 			catch (BeansException ex) {
@@ -169,7 +185,9 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 		}
 
 		// Let subclasses do whatever initialization they like.
-		// 核心调用方法
+		/**
+		 * 核心调用方法,        //该方法在FrameworkServlet中
+		 */
 		initServletBean();
 	}
 

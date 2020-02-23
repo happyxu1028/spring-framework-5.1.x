@@ -201,6 +201,9 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 
 		RuntimeBeanReference contentNegotiationManager = getContentNegotiationManager(element, source, context);
 
+		/**
+		 * @RequestMapping方式的处理器映射器的相关处理
+		 */
 		RootBeanDefinition handlerMappingDef = new RootBeanDefinition(RequestMappingHandlerMapping.class);
 		handlerMappingDef.setSource(source);
 		handlerMappingDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -229,14 +232,28 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 		bindingDef.getPropertyValues().add("validator", validator);
 		bindingDef.getPropertyValues().add("messageCodesResolver", messageCodesResolver);
 
+		/**
+		 * 获取消息转化器,作为属性加入到RequestMappingHandlerAdapter
+		 */
 		ManagedList<?> messageConverters = getMessageConverters(element, source, context);
+
+		/**
+		 * 获取参数解析器,作为属性加入到RequestMappingHandlerAdapter
+		 */
 		ManagedList<?> argumentResolvers = getArgumentResolvers(element, context);
+
+		/**
+		 * 获取响应处理器,作为属性加入到RequestMappingHandlerAdapter
+		 */
 		ManagedList<?> returnValueHandlers = getReturnValueHandlers(element, context);
 		String asyncTimeout = getAsyncTimeout(element);
 		RuntimeBeanReference asyncExecutor = getAsyncExecutor(element);
 		ManagedList<?> callableInterceptors = getCallableInterceptors(element, source, context);
 		ManagedList<?> deferredResultInterceptors = getDeferredResultInterceptors(element, source, context);
 
+		/**
+		 * @RequestMapping方式的处理器适配器的相关处理
+		 */
 		RootBeanDefinition handlerAdapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
 		handlerAdapterDef.setSource(source);
 		handlerAdapterDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -558,7 +575,18 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 		return (handlers != null ? extractBeanSubElements(handlers, context) : null);
 	}
 
+	/**
+	 * 获取消息转化器
+	 * @param element
+	 * @param source
+	 * @param context
+	 * @return
+	 */
 	private ManagedList<?> getMessageConverters(Element element, @Nullable Object source, ParserContext context) {
+
+		/**
+		 * 解析单独配置的message-converters
+		 */
 		Element convertersElement = DomUtils.getChildElementByTagName(element, "message-converters");
 		ManagedList<Object> messageConverters = new ManagedList<>();
 		if (convertersElement != null) {
@@ -587,6 +615,9 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 				messageConverters.add(createConverterDefinition(RssChannelHttpMessageConverter.class, source));
 			}
 
+			/**
+			 * 这些boolean属性是哪里来的呢，它们是AnnotationDrivenBeanDefinitionParser的静态变量。
+			 */
 			if (jackson2XmlPresent) {
 				Class<?> type = MappingJackson2XmlHttpMessageConverter.class;
 				RootBeanDefinition jacksonConverterDef = createConverterDefinition(type, source);

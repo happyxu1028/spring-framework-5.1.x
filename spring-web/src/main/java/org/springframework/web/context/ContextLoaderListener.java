@@ -16,6 +16,7 @@
 
 package org.springframework.web.context;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -100,7 +101,19 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
-		initWebApplicationContext(event.getServletContext());
+
+		/**
+		 *  Tomcat将context-param节点转换为键值对,写入到ServletContext
+		 *  ServletContext 是全局唯一的,在Spring的容器和SpringMVC的父容器是独一份的
+		 */
+		ServletContext servletContext = event.getServletContext();
+
+		/**
+		 * 创建Spring容器
+		 * 	如果是XML配置的项目,则容器的具体类型为:XmlWebApplicationContext
+		 * 	Spring的容器后面作为SpringMVC的父容器
+		 */
+		initWebApplicationContext(servletContext);
 	}
 
 
