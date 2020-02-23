@@ -25,9 +25,11 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/demo")
 public class DemoController  {
+	public DemoController() {
+		System.out.println("DemoController.DemoController");
+	}
 
-
-    @RequestMapping("/handle01")
+	@RequestMapping("/handle01")
     public String handle01(String name,Map<String,Object> model) {
 		System.out.println("++++++++handler业务逻辑处理中....");
         Date date = new Date();

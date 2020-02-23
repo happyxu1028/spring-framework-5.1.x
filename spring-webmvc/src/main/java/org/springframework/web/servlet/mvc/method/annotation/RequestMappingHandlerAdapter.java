@@ -879,6 +879,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
 
 
+			/**
+			 * ModelAndViewContainer
+			 * 是对ModelAndView的封装,并且还包含请求的一些信息
+			 */
 			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
 			// 将request请求的相关参数信息封装到ModelAndViewContainer
 			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));

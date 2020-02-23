@@ -139,6 +139,7 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 				/**
 				 * 看当前遍历的匹配器是否支持请求的参数, 若参数为Map,则MapMethodProcessor来处理
 				 * 简单的参数为:RequestParamMethodArgumentResolver来处理
+				 * @RequestBody的形参,交给:RequestResponseBodyMethodProcessor来处理
 				 */
 				if (resolver.supportsParameter(parameter)) {
 					result = resolver;
