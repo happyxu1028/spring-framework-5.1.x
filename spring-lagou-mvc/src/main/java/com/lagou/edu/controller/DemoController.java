@@ -46,6 +46,7 @@ public class DemoController  {
 		System.out.println("++++++++handler业务逻辑处理中....");
 		Date date = new Date();
 		Map<String,String> model = new HashMap<String,String>();
+
 		model.put("test","succ");
 		return model;
 	}
