@@ -355,12 +355,12 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * @since 2.5
 	 */
 	public void applyDefaults(BeanDefinitionDefaults defaults) {
-		setLazyInit(defaults.isLazyInit());
-		setAutowireMode(defaults.getAutowireMode());
-		setDependencyCheck(defaults.getDependencyCheck());
-		setInitMethodName(defaults.getInitMethodName());
+		setLazyInit(defaults.isLazyInit());//false
+		setAutowireMode(defaults.getAutowireMode());//AUTOWIRE_NO
+		setDependencyCheck(defaults.getDependencyCheck());//DEPENDENCY_CHECK_NONE
+		setInitMethodName(defaults.getInitMethodName());// null
 		setEnforceInitMethod(false);
-		setDestroyMethodName(defaults.getDestroyMethodName());
+		setDestroyMethodName(defaults.getDestroyMethodName());//null
 		setEnforceDestroyMethod(false);
 	}
 

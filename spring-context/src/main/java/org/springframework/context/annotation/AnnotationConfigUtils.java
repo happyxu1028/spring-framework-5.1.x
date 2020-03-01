@@ -267,7 +267,11 @@ public abstract class AnnotationConfigUtils {
 	static BeanDefinitionHolder applyScopedProxyMode(
 			ScopeMetadata metadata, BeanDefinitionHolder definition, BeanDefinitionRegistry registry) {
 
+		/**
+		 * 如果当前bean是用于生成代理的bean那么需要进一步处理,代码如下:
+		 */
 		ScopedProxyMode scopedProxyMode = metadata.getScopedProxyMode();
+		// 由于一般ScopedProxyMode都是NO,因此也就不会生成代理
 		if (scopedProxyMode.equals(ScopedProxyMode.NO)) {
 			return definition;
 		}

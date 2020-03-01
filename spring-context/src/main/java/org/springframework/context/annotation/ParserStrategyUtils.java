@@ -44,6 +44,14 @@ abstract class ParserStrategyUtils {
 	public static void invokeAwareMethods(Object parserStrategyBean, Environment environment,
 			ResourceLoader resourceLoader, BeanDefinitionRegistry registry) {
 
+		/**
+		 * 如果parserStrategyBean 是Aware 的子类
+		 *
+		 * 如果parserStrategyBean是BeanClassLoaderAware的子类,则为其注入ClassLoader
+		 * 如果parserStrategyBean是BeanFactoryAware的子类并且registry是BeanFactory的子类,则为其注入BeanFactory
+		 * 如果parserStrategyBean是EnvironmentAware的子类,则为其注入Environment
+		 * 如果parserStrategyBean是ResourceLoaderAware的子类,则为其注入ResourceLoader
+		 */
 		if (parserStrategyBean instanceof Aware) {
 			if (parserStrategyBean instanceof BeanClassLoaderAware) {
 				ClassLoader classLoader = (registry instanceof ConfigurableBeanFactory ?

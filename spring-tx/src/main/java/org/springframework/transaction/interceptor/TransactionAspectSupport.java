@@ -282,12 +282,17 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		// 获取属性解析器，即在ProxyTransactionManagementConfiguration容器配置类中注册事务拦截器时注入的
 		TransactionAttributeSource tas = getTransactionAttributeSource();
 		final TransactionAttribute txAttr = (tas != null ? tas.getTransactionAttribute(method, targetClass) : null);
-		// 获取事务管理器
+		/**
+		 * 获取事务管理器
+		 */
 		final PlatformTransactionManager tm = determineTransactionManager(txAttr);
 		final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
 
 		if (txAttr == null || !(tm instanceof CallbackPreferringPlatformTransactionManager)) {
 			// Standard transaction demarcation with getTransaction and commit/rollback calls.
+			/**
+			 * 决定是否创建事务,若需要,则为事务的执行准备资源
+			 */
 			TransactionInfo txInfo = createTransactionIfNecessary(tm, txAttr, joinpointIdentification);
 
 			Object retVal;

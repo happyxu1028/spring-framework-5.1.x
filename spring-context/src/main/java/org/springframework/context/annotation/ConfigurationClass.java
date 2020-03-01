@@ -56,10 +56,20 @@ final class ConfigurationClass {
 	@Nullable
 	private String beanName;
 
+	/**
+	 * 被@Import导入的组件
+	 */
 	private final Set<ConfigurationClass> importedBy = new LinkedHashSet<>(1);
 
+	/**
+	 * 有@Bean注解的方法
+	 */
 	private final Set<BeanMethod> beanMethods = new LinkedHashSet<>();
 
+
+	/**
+	 * 有@ImportResource("xxxBean.xml")注解的beanDefinition集合
+	 */
 	private final Map<String, Class<? extends BeanDefinitionReader>> importedResources =
 			new LinkedHashMap<>();
 
