@@ -398,7 +398,7 @@ class ConfigurationClassBeanDefinitionReader {
 				if (StringUtils.endsWithIgnoreCase(resource, ".groovy")) {
 					// When clearly asking for Groovy, that's what they'll get...
 
-					// 2.1 如果是.groovy,则为GroovyBeanDefinitionReader
+					// 2.1 如果是.groovy,则为,GroovyBeanDefinitionReader
 					readerClass = GroovyBeanDefinitionReader.class;
 				} else {
 					// Primarily ".xml" files but for any other extension as well
@@ -526,6 +526,9 @@ class ConfigurationClassBeanDefinitionReader {
 					}
 				}
 				if (skip == null) {
+					/**
+					 * 这里进行条件注解的执行和判断
+					 */
 					skip = conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN);
 				}
 				this.skipped.put(configClass, skip);

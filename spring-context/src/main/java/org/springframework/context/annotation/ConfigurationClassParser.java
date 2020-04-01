@@ -321,7 +321,9 @@ class ConfigurationClassParser {
 					if (bdCand == null) {
 						bdCand = holder.getBeanDefinition();
 					}
-					// 如果是配置类(包含相关注解),则进行配置类的解析工作
+					/**
+					 * !!!如果是配置类(包含相关注解),则进行配置类的解析工作
+					 */
 					if (ConfigurationClassUtils.checkConfigurationClassCandidate(bdCand, this.metadataReaderFactory)) {
 
 						/**
@@ -334,7 +336,8 @@ class ConfigurationClassParser {
 		}
 
 		/**
-		 * 处理@Import导入的组件
+		 * 递归先获取该配置类上的@Import相关的注解
+		 * 然后处理@Import导入的组件
 		 */
 		// Process any @Import annotations
 		processImports(configClass, sourceClass, getImports(sourceClass), true);
