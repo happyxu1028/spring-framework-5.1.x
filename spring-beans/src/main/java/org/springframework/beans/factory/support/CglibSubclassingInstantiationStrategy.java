@@ -114,8 +114,12 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		 * @return new instance of the dynamically generated subclass
 		 */
 		public Object instantiate(@Nullable Constructor<?> ctor, Object... args) {
+
+			// 1、生成增强子类
 			Class<?> subclass = createEnhancedSubclass(this.beanDefinition);
 			Object instance;
+
+			// 2、实例化增强子类
 			if (ctor == null) {
 				instance = BeanUtils.instantiateClass(subclass);
 			}
@@ -132,6 +136,8 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			// SPR-10785: set callbacks directly on the instance instead of in the
 			// enhanced class (via the Enhancer) in order to avoid memory leaks.
 			Factory factory = (Factory) instance;
+
+			// 3、设置回调
 			factory.setCallbacks(new Callback[] {NoOp.INSTANCE,
 					new LookupOverrideMethodInterceptor(this.beanDefinition, this.owner),
 					new ReplaceOverrideMethodInterceptor(this.beanDefinition, this.owner)});

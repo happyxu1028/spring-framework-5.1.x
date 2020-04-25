@@ -567,7 +567,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 				/***
 					Initialize event multicaster for this context.
-					初始化事件派发器
+					初始化事件广播器
 				 */
 				initApplicationEventMulticaster();
 

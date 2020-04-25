@@ -31,4 +31,6 @@ rootProject.children.each {project ->
 }
 include 'spring-lagou'
 include 'spring-lagou-mvc'
+include 'spring-learning:spring-learning'
+findProject(':spring-learning:spring-learning')?.name = 'spring-learning'
 

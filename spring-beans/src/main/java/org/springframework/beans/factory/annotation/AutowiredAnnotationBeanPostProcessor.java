@@ -120,6 +120,9 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/**
+	 * 相关DI的注解类    Autowired.class / Value.class /
+	 */
 	private final Set<Class<? extends Annotation>> autowiredAnnotationTypes = new LinkedHashSet<>(4);
 
 	private String requiredParameterName = "required";
@@ -149,8 +152,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		this.autowiredAnnotationTypes.add(Autowired.class);
 		this.autowiredAnnotationTypes.add(Value.class);
 		try {
-			this.autowiredAnnotationTypes.add((Class<? extends Annotation>)
-					ClassUtils.forName("javax.inject.Inject", AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));
+			this.autowiredAnnotationTypes.add((Class<? extends Annotation>) ClassUtils.forName("javax.inject.Inject", AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));
 			logger.trace("JSR-330 'javax.inject.Inject' annotation found and supported for autowiring");
 		}
 		catch (ClassNotFoundException ex) {
@@ -371,6 +373,10 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	@Override
 	public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
+
+		/**
+		 * 可以参考博客:https://blog.csdn.net/wang704987562/article/details/80868368
+		 */
 		InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);
 		try {
 			metadata.inject(bean, beanName, pvs);
@@ -414,19 +420,32 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 	}
 
 
+	/**
+	 * 检索可以进行注入的属性和方法
+	 * @param beanName
+	 * @param clazz
+	 * @param pvs
+	 * @return
+	 */
 	private InjectionMetadata findAutowiringMetadata(String beanName, Class<?> clazz, @Nullable PropertyValues pvs) {
 		// Fall back to class name as cache key, for backwards compatibility with custom callers.
 		String cacheKey = (StringUtils.hasLength(beanName) ? beanName : clazz.getName());
 		// Quick check on the concurrent map first, with minimal locking.
+
+		//1.先从缓存中取
 		InjectionMetadata metadata = this.injectionMetadataCache.get(cacheKey);
 		if (InjectionMetadata.needsRefresh(metadata, clazz)) {
+			// 2.缓存中不存在,则执行初次检索,检索可以进行注入的属性和方法
 			synchronized (this.injectionMetadataCache) {
 				metadata = this.injectionMetadataCache.get(cacheKey);
 				if (InjectionMetadata.needsRefresh(metadata, clazz)) {
 					if (metadata != null) {
 						metadata.clear(pvs);
 					}
+					// 3.检索可以进行注入的属性和方法
 					metadata = buildAutowiringMetadata(clazz);
+
+					// 4.缓存起来,用于下次查询(比如多例bean的创建,或者热部署(容器的重新构建))
 					this.injectionMetadataCache.put(cacheKey, metadata);
 				}
 			}
@@ -439,9 +458,15 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		Class<?> targetClass = clazz;
 
 		do {
+			// 存放我们找到的元数据信息
 			final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
 
+			/**
+			 *  通过反射找出对应Class对象的所有Field
+			 */
 			ReflectionUtils.doWithLocalFields(targetClass, field -> {
+
+				// 通过反射找到该字段上所有的注解信息，并判断是否有@Autowired和@Value注解，如果有就将该字段封成AutowiredFieldElement对象
 				AnnotationAttributes ann = findAutowiredAnnotation(field);
 				if (ann != null) {
 					if (Modifier.isStatic(field.getModifiers())) {
@@ -451,15 +476,20 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						return;
 					}
 					boolean required = determineRequiredStatus(ann);
+					// 将该字段封成AutowiredFieldElement对象，并放到缓存中
 					currElements.add(new AutowiredFieldElement(field, required));
 				}
 			});
 
+			/**
+			 *   通过反射找出对应Class对象的所有Method
+			 */
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
 				Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
 				if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
 					return;
 				}
+				// 通过反射找到该字段上所有的注解信息，并判断是否有@Autowired和@Value注解，如果有就将该字段封成AutowiredMethodElement对象
 				AnnotationAttributes ann = findAutowiredAnnotation(bridgedMethod);
 				if (ann != null && method.equals(ClassUtils.getMostSpecificMethod(method, clazz))) {
 					if (Modifier.isStatic(method.getModifiers())) {
@@ -476,6 +506,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					}
 					boolean required = determineRequiredStatus(ann);
 					PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
+					// 将该字段封成AutowiredMethodElement对象
 					currElements.add(new AutowiredMethodElement(method, required, pd));
 				}
 			});
@@ -483,8 +514,10 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 			elements.addAll(0, currElements);
 			targetClass = targetClass.getSuperclass();
 		}
+		// 循环处理父类需要自动装配的元素
 		while (targetClass != null && targetClass != Object.class);
 
+		// 将需要自动装配的元素封装成InjectionMetadata对象,最后合并到Bean定义中
 		return new InjectionMetadata(clazz, elements);
 	}
 
@@ -592,6 +625,9 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				Assert.state(beanFactory != null, "No BeanFactory available");
 				TypeConverter typeConverter = beanFactory.getTypeConverter();
 				try {
+					/**
+					 * 解析出来需要依赖注入的属性值
+					 */
 					value = beanFactory.resolveDependency(desc, beanName, autowiredBeanNames, typeConverter);
 				}
 				catch (BeansException ex) {
@@ -667,6 +703,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					currDesc.setContainingClass(bean.getClass());
 					descriptors[i] = currDesc;
 					try {
+						// 1. 解析出 @Autowired 所需要注入的实例
 						Object arg = beanFactory.resolveDependency(currDesc, beanName, autowiredBeans, typeConverter);
 						if (arg == null && !this.required) {
 							arguments = null;
@@ -706,7 +743,9 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 			}
 			if (arguments != null) {
 				try {
+					// 如果该属性是 private 的，那么 make accessiable
 					ReflectionUtils.makeAccessible(method);
+					//通过反射将 @Autowired annotated ref-bean 写入当前 bean 的属性中
 					method.invoke(bean, arguments);
 				}
 				catch (InvocationTargetException ex) {

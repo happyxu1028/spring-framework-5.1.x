@@ -51,6 +51,9 @@ public class InjectionMetadata {
 
 	private final Class<?> targetClass;
 
+	/**
+	 * 某类型(targetClass) 中可以被属性注入和方法注入的集合
+	 */
 	private final Collection<InjectedElement> injectedElements;
 
 	@Nullable

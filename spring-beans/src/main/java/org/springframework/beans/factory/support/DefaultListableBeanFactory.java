@@ -1175,9 +1175,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			return new Jsr330Factory().createDependencyProvider(descriptor, requestingBeanName);
 		}
 		else {
-			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
-					descriptor, requestingBeanName);
+			// 返回该 lazy proxy 表示延迟初始化，实现过程是查看在 @Autowired 注解处是否使用了 @Lazy = true 注解
+			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(descriptor, requestingBeanName);
 			if (result == null) {
+				/**
+				 * 解析出来需要依赖注入的属性值
+				 */
+				// 大部分的通过 @Autowired 注解的普通 bean 将会在这里进行初始化
 				result = doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter);
 			}
 			return result;
@@ -1197,6 +1201,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 			Class<?> type = descriptor.getDependencyType();
 			Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
+			//默认实现返回null
 			if (value != null) {
 				if (value instanceof String) {
 					String strVal = resolveEmbeddedValue((String) value);
@@ -1215,12 +1220,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							converter.convertIfNecessary(value, type, descriptor.getMethodParameter()));
 				}
 			}
-
+			//处理数组、List、Map等类型
 			Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames, typeConverter);
 			if (multipleBeans != null) {
 				return multipleBeans;
 			}
 
+			//1. 根据 type 去找到对应的 candidates，该方法内部会处理 @Qualifier 的情况
 			Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
 			if (matchingBeans.isEmpty()) {
 				if (isRequired(descriptor)) {
@@ -1233,6 +1239,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			Object instanceCandidate;
 
 			if (matchingBeans.size() > 1) {
+				//2. 根据 @Primary and @Priority 注解进行筛选
 				autowiredBeanName = determineAutowireCandidate(matchingBeans, descriptor);
 				if (autowiredBeanName == null) {
 					if (isRequired(descriptor) || !indicatesMultipleBeans(type)) {
@@ -1251,6 +1258,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				// We have exactly one match.
 				Map.Entry<String, Object> entry = matchingBeans.entrySet().iterator().next();
 				autowiredBeanName = entry.getKey();
+				// 这里返回的是 Class Type
 				instanceCandidate = entry.getValue();
 			}
 
@@ -1258,6 +1266,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				autowiredBeanNames.add(autowiredBeanName);
 			}
 			if (instanceCandidate instanceof Class) {
+				// 3.这个方法会调用 Factory.getBean.. 去实例化找到的 Class Type
 				instanceCandidate = descriptor.resolveCandidate(autowiredBeanName, type, this);
 			}
 			Object result = instanceCandidate;

@@ -52,6 +52,11 @@ final class PostProcessorRegistrationDelegate {
 	}
 
 
+	/**
+	 * 调用执行BeanFactoryPostProcessor
+	 * @param beanFactory
+	 * @param beanFactoryPostProcessors
+	 */
 	public static void invokeBeanFactoryPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
 
@@ -80,6 +85,14 @@ final class PostProcessorRegistrationDelegate {
 			// PriorityOrdered, Ordered, and the rest.
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
+			/**
+			 * 如果 Bean 实现了 PriorityOrdered 接口，则最优先执行
+			 * 若是两个 Bean 同时指定了 PriorityOrdered 接口，则根据指定的 order 值的大小来确定谁优先调用，即
+			 * public int getOrder() {
+			 * 	return 0;
+			 * }
+			 * 的返回结果。谁的值越小，谁优先调用。
+			 */
 			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
@@ -89,11 +102,19 @@ final class PostProcessorRegistrationDelegate {
 					processedBeans.add(ppName);
 				}
 			}
+			// 排序
 			sortPostProcessors(currentRegistryProcessors, beanFactory);
+			// 注册
 			registryProcessors.addAll(currentRegistryProcessors);
+			// 调用
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+			// 清空临时集合
 			currentRegistryProcessors.clear();
 
+			/**
+			 * 如果 Bean 实现了 Ordered 接口，则为第二优先级调用
+			 * 或是有两个 Bean 同时实现了 Ordered 接口，同样根据指定的 order 值的大小来确认，谁小谁先调用。
+			 */
 			// Next, invoke the BeanDefinitionRegistryPostProcessors that implement Ordered.
 			postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
@@ -107,6 +128,9 @@ final class PostProcessorRegistrationDelegate {
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 			currentRegistryProcessors.clear();
 
+			/**
+			 * 如果 Bean 没有实现以上两上接口（PriorityOrdered 和 Ordered），则当前 Bean 最后调用。
+			 */
 			// Finally, invoke all other BeanDefinitionRegistryPostProcessors until no further ones appear.
 			boolean reiterate = true;
 			while (reiterate) {
@@ -241,7 +265,9 @@ final class PostProcessorRegistrationDelegate {
 		// 5.首先, 注册实现PriorityOrdered接口的BeanPostProcessors
 		// 5.1 对priorityOrderedPostProcessors进行排序
 		sortPostProcessors(priorityOrderedPostProcessors, beanFactory);
-		// 5.2 注册priorityOrderedPostProcessors
+		/**
+		 * 5.2 注册priorityOrderedPostProcessors
+		 */
 		registerBeanPostProcessors(beanFactory, priorityOrderedPostProcessors);
 
 		// Next, register the BeanPostProcessors that implement Ordered.
@@ -260,7 +286,9 @@ final class PostProcessorRegistrationDelegate {
 		}
 		// 6.4 对orderedPostProcessors进行排序
 		sortPostProcessors(orderedPostProcessors, beanFactory);
-		// 6.5 注册orderedPostProcessors
+		/**
+		 * 6.5 注册orderedPostProcessors
+		 */
 		registerBeanPostProcessors(beanFactory, orderedPostProcessors);
 
 		// Now, register all regular BeanPostProcessors.
@@ -273,13 +301,18 @@ final class PostProcessorRegistrationDelegate {
 				internalPostProcessors.add(pp);
 			}
 		}
+		/**
+		 * 注册不需要排序的BeanPostProcessor
+		 */
 		registerBeanPostProcessors(beanFactory, nonOrderedPostProcessors);
 
 		// Finally, re-register all internal BeanPostProcessors.
 		// 8.最后, 重新注册所有内部BeanPostProcessors（相当于内部的BeanPostProcessor会被移到处理器链的末尾）
 		// 8.1 对internalPostProcessors进行排序
 		sortPostProcessors(internalPostProcessors, beanFactory);
-		// 8.2注册internalPostProcessors
+		/**
+		 * 8.2注册internalPostProcessors
+		 */
 		registerBeanPostProcessors(beanFactory, internalPostProcessors);
 
 		// Re-register post-processor for detecting inner beans as ApplicationListeners,
